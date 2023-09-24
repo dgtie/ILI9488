@@ -1,0 +1,14 @@
+|_ _ _ _ _ _ _ _ |
+| !"#$%&'()*+,-./|
+|0123456789:;<=>?|
+|@ABCDEFGHIJKLMNO|
+|PQRSTUVWXYZ[\]^_|
+|`abcdefghijklmno|
+|pqrstuvwxyz{|}~_|
+_ _ _ _ _ _ _ _ _|
+
+width * height / 16 = integer
+
+font16 width=10, height=16, line space=3
+font24 width=14, height=24, line space=5
+symbol width=24, height=26, line space=1
