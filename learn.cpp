@@ -28,6 +28,7 @@ void normalize(void) {
   for (int i = 0; i < ir_index; i++)
     irdata[i] = (irdata[i] + (unit >> 1)) / unit;
   irdata[ir_index] = 0;
+  if (unit < 20) unit = 0;	// illegal
 }
 
 void capture_start(void) {
@@ -95,6 +96,16 @@ struct {
       if (phase_data[i++]) idle = 0; else idle++;
     }
     if (i < 49) phase_data[++i] = 6;
+  }
+  int read(int pos, int size) {
+    int v = 0;
+    for (int i = pos; i < pos + size; i++) {
+      v <<= 1; 
+      if (phase_data[i] == 1) continue;
+      if (phase_data[i] == 2) v++;
+      else return -1;
+    }
+    return v;
   }
   void draw(void) {
     char *data = gram::set(WIDTH, HEIGHT);
@@ -166,7 +177,7 @@ private:
   enum { WIDTH=124, HEIGHT=406 };
 } widthM;
 
-int sirc20(void), nec(void), sharp(void);
+int sirc20(void), nec(void), sharp(void), rc6(void);
 
 struct {
   int parameters[4];
@@ -196,10 +207,11 @@ struct {
     tft_write_data(120, data, 6720);
   }
 private:
-  enum { TABLESIZE=3 };
+  enum { TABLESIZE=4 };
   const struct { int size; char name[8]; int(*func)(void); }
     table[TABLESIZE] = {
-    { 7, "SIRC 20", &sirc20 }, { 3, "NEC", &nec }, { 5, "SHARP", &sharp }
+    { 7, "SIRC 20", &sirc20 }, { 3, "NEC", &nec }, { 5, "SHARP", &sharp },
+    { 3, "RC6", &rc6 }
   };
 } decoder;
 
@@ -241,6 +253,19 @@ int sharp(void) {
   decoder.parameters[0] = b & 0x1f; b >>= 5;
   decoder.parameters[1] = b;
   return 2;
+}
+
+int rc6(void) {
+  if ((irdata[0] != 6)||(irdata[1] != 2)) return 0;
+  int m = phaseM.read(4, 4);
+  if ((m < 0)||(!(m & 8))) return 0;
+  int c = phaseM.read(10, 8);
+  int i = phaseM.read(18, 8);
+  if ((i < 0)||(c < 0)) return 0;
+  decoder.parameters[0] = m & 7;
+  decoder.parameters[1] = c;
+  decoder.parameters[2] = i;
+  return 3;
 }
 
 void draw(void) {
