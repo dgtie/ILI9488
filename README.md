@@ -5,5 +5,5 @@
 
 |![](tools/menu.bmp)|![](tools/timer.bmp)|![](tools/calc.bmp)|
 |---|---|---|
-|![](tools/remote.bmp)|![](tools/learn.bmp)|
+|![](tools/remote.bmp)|![](tools/learn.bmp)|![](tools/rc6.bmp)|
 
