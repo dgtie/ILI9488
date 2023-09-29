@@ -48,7 +48,8 @@ void capture_stop(void) {
 struct {
   void draw(unsigned short *p) {
     y = 0;
-    char *data = gram::set(WIDTH, HEIGHT);
+    char data[(WIDTH >> 1) * HEIGHT];
+    gram::set(WIDTH, HEIGHT, data);
     gram::fill(TEAL);
     while (1) {
       if (!mark(p[0])) break;
@@ -108,7 +109,8 @@ struct {
     return v;
   }
   void draw(void) {
-    char *data = gram::set(WIDTH, HEIGHT);
+    char data[(WIDTH >> 1) * HEIGHT];
+    gram::set(WIDTH, HEIGHT, data);
     gram::fill(TEAL);
     for (int i = 0; i < 51; i++) {
       if (phase_data[i] == 6) break;
@@ -159,7 +161,8 @@ private:
 
 struct {
   void draw(void) {
-    char *data = gram::set(WIDTH, HEIGHT);
+    char data[(WIDTH >> 1) * HEIGHT];
+    gram::set(WIDTH, HEIGHT, data);
     gram::fill(TEAL);
     for (int i = 0; i < 68; i++) {
       if (!irdata[i]) break;
@@ -186,7 +189,8 @@ struct {
                        //       012
     for (i = 0; i < TABLESIZE; i++) if ((n = (*table[i].func)())) break;
     s = table[i].size;
-    char *data = gram::set(150, 48);
+    char data[6720];
+    gram::set(150, 48, data);
     gram::fill(WHITE);
     if (n) gram::print(fnt24, BLACK, s, (char*)table[i].name,
                        (150 - s * 14) >> 1, 12);
@@ -268,20 +272,26 @@ int rc6(void) {
   return 3;
 }
 
-void draw(void) {
-  char text[] = "unit =   0 us";
-  //             01234567890123
-  char *data = gram::set(320, 54);
+void draw_title(void) {
+  char data[8640];
+  gram::set(320, 54, data);
   gram::fill(TEAL);
   gram::draw(remoteDisplayImg, 0, 0);
   gram::print(fnt24, BLUE, learn(NAME, 0, 0), 104, 12);
   tft_write_data(426, data, 8640);
+}
+
+void draw(void) {
+  char text[] = "unit =   0 us";
+  //             01234567890123
+  draw_title();
   if (unit) {
     signal.draw(irdata);
     phaseM.draw();
     widthM.draw();
     int2str((unit * 64) / 10, &text[9]);
-    gram::set(150, 32);
+    char data[2400];
+    gram::set(150, 32, data);
     gram::fill(WHITE);
     gram::print(fnt16, BLACK, text, 10, 8);
     tft_caset(160, 309);
@@ -291,19 +301,24 @@ void draw(void) {
   }
 }
 
+void draw_background(void) {
+  char data[22720];
+  gram::set(320, 142, data);
+  gram::fill(TEAL);
+  tft_paset(0, 479);
+  tft_cmd(WRITE_PIXEL_FORMAT, 1);
+  tft_cmd(MEMORY_WRITE);
+  tft_write_data(data, 22720);
+  tft_write_data(data, 22720);
+  tft_write_data(data, 22720);
+  tft_cmd(WRITE_PIXEL_FORMAT, 6);
+}
+
 } //anonymous
 
 char *learn(Cmd cmd, int x, int y) {
   if (cmd == DRAW) {
-    char *data = gram::set(320, 142);
-    gram::fill(TEAL);
-    tft_paset(0, 479);
-    tft_cmd(WRITE_PIXEL_FORMAT, 1);
-    tft_cmd(MEMORY_WRITE);
-    tft_write_data(data, 22720);
-    tft_write_data(data, 22720);
-    tft_write_data(data, 22720);
-    tft_cmd(WRITE_PIXEL_FORMAT, 6);
+    draw_background();
     draw();
     capture_start();
   }

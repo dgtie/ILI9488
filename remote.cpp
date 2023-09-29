@@ -57,7 +57,8 @@ const struct Row {
 };
 
 void draw_display(Color c, int size, char *p) {
-  char *data = gram::set(320, 64);
+  char data[10240];
+  gram::set(320, 64, data);
   gram::fill(TEAL);
   gram::draw(remoteDisplayImg, 0, 0);
   if (c == WHITE) c = BLUE;
@@ -66,28 +67,33 @@ void draw_display(Color c, int size, char *p) {
   tft_write_data(416, data, 10240);
 }
 
+void draw_panel(void) {
+  char data[21120];
+  gram::set(320, 66, data);
+  gram::fill(TEAL);
+  gram::draw(buttonImg, 2, 9);
+  gram::draw(buttonImg, 82, 9);
+  gram::draw(buttonImg, 162, 9);
+  gram::draw(buttonImg, 242, 9);
+  gram::copy();
+  tft_paset(0, 479);
+  tft_cmd(WRITE_PIXEL_FORMAT, 1);
+  tft_cmd(MEMORY_WRITE);
+  for (int i = 0; i < 8; i++) {
+    ((Row*)&row[i])->print();
+    tft_write_data(data, 8000);
+    gram::paste();
+  }
+  gram::fill(TEAL);
+  tft_write_data(data, 2560);
+  tft_cmd(WRITE_PIXEL_FORMAT, 6);
+}
+
 }//anonymous
 
 char *remote(Cmd cmd, int x, int y) {
   if (cmd == DRAW) {
-    char *data = gram::set(320, 66);
-    gram::fill(TEAL);
-    gram::draw(buttonImg, 2, 9);
-    gram::draw(buttonImg, 82, 9);
-    gram::draw(buttonImg, 162, 9);
-    gram::draw(buttonImg, 242, 9);
-    gram::copy();
-    tft_paset(0, 479);
-    tft_cmd(WRITE_PIXEL_FORMAT, 1);
-    tft_cmd(MEMORY_WRITE);
-    for (int i = 0; i < 8; i++) {
-      ((Row*)&row[i])->print();
-      tft_write_data(data, 8000);
-      gram::paste();
-    }
-    gram::fill(TEAL);
-    tft_write_data(data, 2560);
-    tft_cmd(WRITE_PIXEL_FORMAT, 6);
+    draw_panel();
     draw_display(BLUE, 13, remote(NAME, 0, 0));
   }
   if (cmd == DOWN) {

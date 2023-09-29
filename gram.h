@@ -18,14 +18,15 @@ struct Font { short width, height, first, mask[]; };
 namespace gram
 {
 
-char *set(int width, int height);
-char *fill(Color);
-char *fill(Color, int x, int y, int w, int h);  // x, w, h must be even 
-char *load(Image*);
-char *draw(Image*, int x, int y);		// x must be even
-char *print(Font*, Color, int c, int x, int y);	// x must be even
-char *print(Font*, Color, int size, char*, int x, int y);
-char *print(Font*, Color, char*, int x, int y);
+void set(int width, int height, char*);
+void set(int width, int height);
+void fill(Color);
+void fill(Color, int x, int y, int w, int h);   // x, w, h must be even 
+void load(Image*);
+void draw(Image*, int x, int y);		// x must be even
+void print(Font*, Color, int c, int x, int y);	// x must be even
+void print(Font*, Color, int size, char*, int x, int y);
+void print(Font*, Color, char*, int x, int y);
 void copy(void);
 char *paste(void);
 

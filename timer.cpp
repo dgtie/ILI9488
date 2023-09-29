@@ -17,7 +17,8 @@ enum { STOPPED, COUNTING, ALARM } state;
 
 struct { Image *image; char text[4];
   void draw(Color c) {
-    char *data = gram::set(320, 150);
+    char data[24000];
+    gram::set(320, 150, data);
     gram::fill(c);
     gram::draw(image, 0, 0);
     gram::print(fnt68, BLACK, 2, text, 20, 41);
@@ -53,6 +54,31 @@ void draw_buttons(char *p) {
   tft_write_data(data, 12800);
 }
 
+void draw_panel(void) {
+  char data[25600];
+  gram::set(320, 80, data);
+  gram::fill(TEAL);
+  gram::draw(largeButton, 40, 5);
+  gram::draw(largeButton, 124, 5);
+  gram::draw(largeButton, 208, 5);
+  gram::copy();
+  gram::print(fnt68, MAROON, 44, 46, 5);
+  gram::print(fnt68, MAROON, 44, 214, 5);
+  gram::print(fnt68, WHITE, ':', 46, 5);
+  gram::print(fnt28, WHITE, '0', 150, 26);
+  gram::print(fnt68, WHITE, ';', 214, 5);
+  tft_paset(0, 479);
+  tft_cmd(WRITE_PIXEL_FORMAT, 1);
+  tft_cmd(MEMORY_WRITE);
+  tft_write_data(data, 12800);
+  draw_buttons("123");
+  draw_buttons("456");
+  draw_buttons("789");
+  gram::fill(TEAL);
+  tft_write_data(data, 1600);
+  tft_cmd(WRITE_PIXEL_FORMAT, 6);
+}
+
 void alarm_on(void) { buzzer(1); display.draw(RED); state = ALARM; }
 
 void alarm_off(void) { buzzer(0); display.draw(LIGHTGREEN); state = STOPPED; }
@@ -64,27 +90,7 @@ void clear(void) { display.time(0); alarm_off(); }
 char *timer(Cmd cmd, int x, int y) {
   static int button = -1, time;
   if (cmd == DRAW) {
-    char *data = gram::set(320, 80);
-    gram::fill(TEAL);
-    gram::draw(largeButton, 40, 5);
-    gram::draw(largeButton, 124, 5);
-    gram::draw(largeButton, 208, 5);
-    gram::copy();
-    gram::print(fnt68, MAROON, 44, 46, 5);
-    gram::print(fnt68, MAROON, 44, 214, 5);
-    gram::print(fnt68, WHITE, ':', 46, 5);
-    gram::print(fnt28, WHITE, '0', 150, 26);
-    gram::print(fnt68, WHITE, ';', 214, 5);
-    tft_paset(0, 479);
-    tft_cmd(WRITE_PIXEL_FORMAT, 1);
-    tft_cmd(MEMORY_WRITE);
-    tft_write_data(data, 12800);
-    draw_buttons("123");
-    draw_buttons("456");
-    draw_buttons("789");
-    gram::fill(TEAL);
-    tft_write_data(data, 1600);
-    tft_cmd(WRITE_PIXEL_FORMAT, 6);
+    draw_panel();
     display.draw(LIGHTGREEN);
   }
   if (cmd == MAIN) {

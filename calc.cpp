@@ -17,7 +17,8 @@ class Display {
 public:
   Display(void) { clear_buffer(); }
   void draw(void) {
-    char *data = gram::set(320, 80);
+    char data[12800];
+    gram::set(320, 80, data);
     gram::draw(displayImg, 0, 0);
     if (error) gram::print(fnt24, RED, 5, "ERROR", 125, 28);
     else gram::print(fnt28, BLACK, 11, buffer, 50, 26);
@@ -157,39 +158,44 @@ void draw_buttons(char *p) {
   tft_write_data(data, 12800);
 }
 
+void draw_panel(void) {
+  char data[25600];
+  gram::set(320, 80, data);
+  gram::fill(TEAL);
+  gram::draw(largeButton, 2, 5);
+  gram::draw(largeButton, 82, 5);
+  gram::draw(largeButton, 162, 5);
+  gram::draw(largeButton, 242, 5);
+  gram::copy();
+  gram::print(fnt28, WHITE, '0', 28, 26);
+  gram::print(fnt28, WHITE, '.', 108, 26);
+  gram::print(fnt68, WHITE, '=', 168, 6);
+  gram::print(fnt68, WHITE, '+', 248, 6);
+  tft_paset(0, 479);
+  tft_cmd(WRITE_PIXEL_FORMAT, 1);
+  tft_cmd(MEMORY_WRITE);
+  tft_write_data(data, 12800);
+  draw_buttons("123-");
+  draw_buttons("456*");
+  draw_buttons("789/");
+  gram::paste();
+  gram::print(fnt68, WHITE, '<', 8, 6);
+  gram::print(fnt68, WHITE, '.', 88, 6);
+  gram::print(fnt68, MAROON, ',', 168, 6);
+  gram::print(fnt68, MAROON, ',', 248, 6);
+  gram::print(fnt24, WHITE, 'C', 190, 28);
+  gram::print(fnt24, WHITE, 2, "AC", 264, 28);
+  tft_write_data(data, 12800);
+  tft_cmd(WRITE_PIXEL_FORMAT, 6);
+}
+
 void clear_all(void) { display.clear_buffer(); calculate.clear(); }
 
 }//anonymous
 
 char *calc(Cmd cmd, int x, int y) {
   if (cmd == DRAW) {
-    char *data = gram::set(320, 80);
-    gram::fill(TEAL);
-    gram::draw(largeButton, 2, 5);
-    gram::draw(largeButton, 82, 5);
-    gram::draw(largeButton, 162, 5);
-    gram::draw(largeButton, 242, 5);
-    gram::copy();
-    gram::print(fnt28, WHITE, '0', 28, 26);
-    gram::print(fnt28, WHITE, '.', 108, 26);
-    gram::print(fnt68, WHITE, '=', 168, 6);
-    gram::print(fnt68, WHITE, '+', 248, 6);
-    tft_paset(0, 479);
-    tft_cmd(WRITE_PIXEL_FORMAT, 1);
-    tft_cmd(MEMORY_WRITE);
-    tft_write_data(data, 12800);
-    draw_buttons("123-");
-    draw_buttons("456*");
-    draw_buttons("789/");
-    gram::paste();
-    gram::print(fnt68, WHITE, '<', 8, 6);
-    gram::print(fnt68, WHITE, '.', 88, 6);
-    gram::print(fnt68, MAROON, ',', 168, 6);
-    gram::print(fnt68, MAROON, ',', 248, 6);
-    gram::print(fnt24, WHITE, 'C', 190, 28);
-    gram::print(fnt24, WHITE, 2, "AC", 264, 28);
-    tft_write_data(data, 12800);
-    tft_cmd(WRITE_PIXEL_FORMAT, 6);
+    draw_panel();
     display.draw();
   }
   if (cmd == DOWN) {

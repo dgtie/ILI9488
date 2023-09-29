@@ -51,16 +51,18 @@ namespace
 {
 
 int width, height;
-char data[25600];
+char *data;
 
 } //anonymous
 
 namespace gram
 {
 
-char *set(int w, int h) { width = w; height = h; return data; }
+void set(int w, int h, char *p) { width = w; height = h; data = p; }
 
-char *fill(Color c) {
+void set(int w, int h) { width = w; height = h; }
+
+void fill(Color c) {
   int color[2];
   color[0] = c & 077;
   color[1] = c >> 3;
@@ -69,10 +71,9 @@ char *fill(Color c) {
   for (int i = 0; i < height; i++)
     for (int j = 0; j < n; j++)
       *ptr++ = color[i & 1];
-  return data;
 }
 
-char *fill(Color c, int x, int y, int w, int h) {
+void fill(Color c, int x, int y, int w, int h) {
   int color[2];
   color[0] = c & 077;
   color[1] = c >> 3;
@@ -83,15 +84,14 @@ char *fill(Color c, int x, int y, int w, int h) {
       ptr[j] = color[i & 1];
     ptr += width >> 1;
   }
-  return data;
 }
 
-char *load(Image *img) {
+void load(Image *img) {
   set(img->width, img->height);
-  return draw(img, 0, 0);
+  draw(img, 0, 0);
 }
 
-char *draw(Image *img, int x, int y) {
+void draw(Image *img, int x, int y) {
   RunLength rle(img);
   int imgWidth = img->width >> 1;
   int buffer[imgWidth];
@@ -106,10 +106,9 @@ char *draw(Image *img, int x, int y) {
     }
     d += (width >> 1);
   }
-  return data;
 }
 
-char *print(Font *fnt, Color c, int ch, int x, int y) {
+void print(Font *fnt, Color c, int ch, int x, int y) {
   int i = (ch - fnt->first) * ((fnt->width * fnt->height) >> 4);
   Bitmap bitmap(&fnt->mask[i], c);
   int fontWidth = fnt->width >> 1;
@@ -125,26 +124,23 @@ char *print(Font *fnt, Color c, int ch, int x, int y) {
     }
     d += (width >> 1);
   }
-  return data;
 }
 
-char *print(Font *fnt, Color color, int size, char *s, int x, int y) {
+void print(Font *fnt, Color color, int size, char *s, int x, int y) {
   int i = 0;
   while (i < size) {
     char c = s[i++];
     if (c != 32) print(fnt, color, c, x, y);
     x += fnt->width;
   }
-  return data;
 }
 
-char *print(Font *fnt, Color color, char *s, int x, int y) {
+void print(Font *fnt, Color color, char *s, int x, int y) {
   while (*s) {
     char c = *s++;
     if (c != 32) print(fnt, color, c, x, y);
     x += fnt->width;
   }
-  return data;
 }
 
 void copy(void) {

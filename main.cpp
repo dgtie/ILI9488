@@ -44,7 +44,8 @@ char *light(Cmd cmd, int, int) {
 void draw_menu(int id, Color c) {
   if (id < 1) return;
   Device dev = devices[id];
-  char *data = gram::set(320, 50);
+  char data[8000];
+  gram::set(320, 50, data);
   gram::fill(TEAL);
   gram::fill(BLACK, 28, 2, 264, 46);
   gram::fill(GOLD, 30, 5, 260, 40);
@@ -56,11 +57,11 @@ void draw_menu(int id, Color c) {
 char *root(Cmd cmd, int x, int y) {
   static int button = -1;
   if (cmd == DRAW) {
-    char *data = gram::set(320, 15);
+    char data[2400];
+    gram::set(320, 15, data);
     gram::fill(TEAL);
     tft_write_data(465, data, 2400);
     for (int i = 1; i < NUM_DEVICE; i++) draw_menu(i, BUTTER);
-    gram::fill(TEAL);
     tft_write_data(0, data, 2400);
   }
   if (cmd == DOWN) {
@@ -81,10 +82,8 @@ char *root(Cmd cmd, int x, int y) {
 }
 
 void dumpScreen(void) {
-  char msg[] = "65536\r\n";
-  //            012345 6
   char buf[9600];
-  dump_flag = false; 
+  dump_flag = false;
   tft_caset(0, 319);
   tft_paset(0, 479);
   xpt_deinit(); sd_init();
@@ -95,10 +94,6 @@ void dumpScreen(void) {
     for (int i = 0; i < 48; i++) {
       tft_read_data(buf, 9600);
       f.write(buf, 9600);
-//      for (int j = 0; j < 4; j++) msg[j] = 32;
-//      int2str(i, &msg[4]);
-//      while (!send_cdc(0,0)) wait(0);
-//      send_cdc(msg, 7);
     }
     tft_read_end();
     f.close();
